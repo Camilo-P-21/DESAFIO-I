@@ -169,9 +169,7 @@ int posY = 0;
 char tecla;
 
 while(true){
-
-    system("cls");
-
+  
     dibujarTablero(tablero, ancho, alto, piezas[tipo], posX, posY);
 
     cout<<"Mover W A S D | Cambiar pieza (Q): ";
