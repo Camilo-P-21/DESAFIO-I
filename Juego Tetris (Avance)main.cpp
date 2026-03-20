@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 void dibujarTablero(char **tablero, int ancho, int alto,
@@ -92,6 +94,34 @@ void fijarPieza(char **tablero, unsigned char pieza[4], int posX, int posY){
     }
 }
 
+void eliminarFilas(char **tablero, int ancho, int alto){
+
+    for(int i=0;i<alto;i++){
+
+        bool llena = true;
+
+        for(int j=0;j<ancho;j++){
+            if(tablero[i][j] != '#'){
+                llena = false;
+                break;
+            }
+        }
+
+        if(llena){
+            for(int k=i; k>0; k--){
+                for(int j=0;j<ancho;j++){
+                    tablero[k][j] = tablero[k-1][j];
+                }
+            }
+            for(int j=0;j<ancho;j++){
+                tablero[0][j] = '*';
+            }
+
+            i--;
+        }
+    }
+}
+
 int main(){
 
     int ancho, alto;
@@ -101,6 +131,13 @@ int main(){
 
     cout<<"Ingrese alto del tablero: ";
     cin>>alto;
+
+    if(ancho < 8 || ancho % 8 != 0 || alto < 8){
+        cout<<"Dimensiones invalidas (min 8 y ancho multiplo de 8)\n";
+        return 0;
+    }
+
+    srand(time(NULL));
 
     char **tablero = new char*[alto];
     for(int i=0;i<alto;i++){
@@ -162,22 +199,22 @@ int main(){
     },
 };
 
-int tipo = 0;
-int posX = 0;
+int tipo = rand() % 7;
+
+int posX = ancho/2 - 2;
 int posY = 0;
 
 char tecla;
 
 while(true){
-  
+
     dibujarTablero(tablero, ancho, alto, piezas[tipo], posX, posY);
 
-    cout<<"Mover W A S D | Cambiar pieza (Q): ";
+    cout<<"Mover W A S D para Cambiar pieza (Q) ";
     cin>>tecla;
 
     if(tecla == 'a'){
         posX--;
-
         if(hayColision(tablero, ancho, alto, piezas[tipo], posX, posY)){
             posX++;
         }
@@ -185,7 +222,6 @@ while(true){
 
     if(tecla == 'd'){
         posX++;
-
         if(hayColision(tablero, ancho, alto, piezas[tipo], posX, posY)){
             posX--;
         }
@@ -199,9 +235,17 @@ while(true){
 
             fijarPieza(tablero, piezas[tipo], posX, posY);
 
-            posX = 0;
-            posY = 0;
+            eliminarFilas(tablero, ancho, alto);
+
             tipo = rand() % 7;
+            posX = ancho/2 - 2;
+            posY = 0;
+
+            if(hayColision(tablero, ancho, alto, piezas[tipo], posX, posY)){
+                system("cls");
+                cout<<"GAME OVER\n";
+                break;
+            }
         }
     }
 
@@ -216,14 +260,7 @@ while(true){
     }
 
     if(tecla == 'q'){
-        tipo++;
-        if(tipo == 7) tipo = 0;
+        tipo = (tipo + 1) % 7;
     }
-
-    if(posX < 0) posX = 0;
-    if(posX > ancho-4) posX = ancho-4;
-
-    if(posY < 0) posY = 0;
-    if(posY > alto-4) posY = alto-4;
-    }
+}
 }
